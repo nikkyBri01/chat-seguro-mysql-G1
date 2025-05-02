@@ -1,0 +1,38 @@
+.message-form-container {
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    gap: 0.75rem;
+  }
+  
+  .send-button {
+   background: 'transparent';
+   border: 'none';
+   cursor: 'pointer';
+  }
+  
+  .fa .fa-paper-plane {
+    font-size: '24px';
+    color: '#0f3d11'
+  }
+
+  .message-form-container input[type="text"] {
+    width: 500px;              /* Hace que el campo ocupe el 100% del contenedor */
+    padding: 10px;            /* Añade un poco de espacio dentro del campo */
+    font-size: 16px;          /* Ajusta el tamaño de la fuente */
+    border: 1px solid #ccc;   /* Borde gris claro */
+    border-radius: 5px;       /* Bordes redondeados */
+    box-sizing: border-box;   /* Asegura que el padding y el borde no afecten el tamaño total */
+  }
+  
+  .message-form-container input[type="text"]:focus {
+    border-color: #063311;    /* Cambia el color del borde cuando el campo está enfocado */
+    outline: none;            /* Elimina el contorno por defecto */
+  }
+  
+  .file-upload {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  

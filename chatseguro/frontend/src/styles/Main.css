@@ -1,0 +1,81 @@
+/* Chat.css */
+
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chat-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scroll-behavior: smooth;
+}
+
+.message-container {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  background-color: #111;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid #333;
+  z-index: 10;
+}
+
+.bubble {
+  max-width: 55%;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.85rem;
+  border-radius: 1rem;
+  position: relative;
+  word-wrap: break-word;
+  line-height: 1.2;
+}
+
+.bubble.sent {
+  align-self: flex-end;
+  background-color: #1e3a3a;
+  color: #e0fdfb;
+}
+
+.bubble.received {
+  align-self: flex-start;
+  background-color: #2e2e2e;
+  color: #dcdcdc;
+}
+
+.bubble .timestamp {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.input-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;  /* Espacio entre los inputs */
+  padding: 10px;
+}
+
+.inputDest {
+  /* flex: 1;  Esto hace que los inputs ocupen un tamaño similar */
+  max-width: 350px; /* Limita el tamaño máximo si es necesario */
+  font-size: 16px;          /* Ajusta el tamaño de la fuente */
+  border: 1px solid #052e0f;   /* Borde gris claro */
+  /* box-sizing: border-box; */
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  color: white;
+}
+
