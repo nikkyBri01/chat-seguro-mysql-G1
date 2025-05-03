@@ -44,11 +44,7 @@ const MessageForm = ({ username, receiver, setMessages, socket }) => {
         ciphertext: bufferToBase64(ciphertext)
       });
       
-      setMessages(prev => [...prev, {
-        from: "Tú",
-        text: message,
-        time: new Date().toLocaleTimeString()
-      }]);
+      setMessages(prev => [...prev, {from: "Tú", text: message, time: new Date().toLocaleTimeString()}]);
 
       setMessage('');
     }

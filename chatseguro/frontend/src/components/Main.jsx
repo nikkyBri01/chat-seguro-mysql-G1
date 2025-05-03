@@ -28,9 +28,7 @@ function Main() {
       if (storedPrivateKey) {
         try {
           const privateKeyBuffer = base64ToBuffer(storedPrivateKey);
-          const privateKey = await crypto.subtle.importKey(
-            "pkcs8",
-            privateKeyBuffer,
+          const privateKey = await crypto.subtle.importKey("pkcs8", privateKeyBuffer,
             {
               name: "RSA-OAEP",
               hash: "SHA-256",
@@ -51,7 +49,7 @@ function Main() {
 
   useEffect(() => {
     const loadHistory = async () => {
-      if (!username || !receiver || !rsaKeys?.privateKey) return;
+      if (!username || !receiver || !rsaKeys.privateKey) return;
   
       try {
         const res = await fetch(`http://localhost:5000/get_messages/${username}/${receiver}`);
@@ -59,7 +57,7 @@ function Main() {
         const loadedMessages = [];
   
         for (const msg of data_bd) {
-          // Seleccionar la clave correcta según si soy emisor o receptor
+          // Seleccionar la clave correcta según si es emisor o receptor
           const isSender = msg.sender === username;
           const encryptedKey = base64ToBuffer(isSender ? msg.encrypted_key_sender : msg.encrypted_key_receiver);
 
@@ -123,7 +121,7 @@ function Main() {
         loadedMessages.sort((a, b) => new Date(a.time) - new Date(b.time));
   
         // setMessages(loadedMessages); 
-        setMessages(prev => [...prev, ...loadedMessages]);
+        setMessages(loadedMessages);
 
       } catch (error) {
         console.error("Error al cargar historial:", error);
@@ -131,26 +129,26 @@ function Main() {
     };
   
     loadHistory();
-  }, [username, receiver, rsaKeys?.privateKey]);
-  
+  }, [username, receiver, rsaKeys]);
+
+  useEffect(() => {
+    if (username) {
+      socket.emit("join", { username });
+      console.log(`${username} se ha unido a su sala privada`);
+    }
+  }, [username]);
+
   // Escuchar mensajes y archivos en tiempo real
   useEffect(() => {
-    if (!rsaKeys?.privateKey || !username) return;
+    if (!rsaKeys || !username) return;
   
     const ReceiveMessage = async (data) => {
       const { sender, ciphertext, encrypted_key_sender, encrypted_key_receiver, nonce } = data;
       try {
         const isSender = data.sender === username;
         const encrypted_key = base64ToBuffer(isSender ? encrypted_key_sender : encrypted_key_receiver);
-        const newText = await decryptMessageWithAES(
-          base64ToBuffer(ciphertext),
-          base64ToBuffer(encrypted_key),
-          base64ToBuffer(nonce),
-          rsaKeys.privateKey
-        );
-  
+        const newText = await decryptMessageWithAES(base64ToBuffer(ciphertext), encrypted_key, base64ToBuffer(nonce), rsaKeys.privateKey);
         console.log("Nuevo mensaje recibido:", newText); // Verifica el contenido del mensaje
-        // setMessages(prev => [...prev, { from: sender, text: messageText, time: new Date().toLocaleTimeString() }]);
         setMessages(prev => [...prev, { from: sender === username ? "Tú" : sender, text: newText, time: new Date().toLocaleTimeString()}]);
       } catch (error) {
         console.error("Error al descifrar mensaje recibido:", error);
@@ -172,15 +170,16 @@ function Main() {
         console.error("Error al descifrar archivo recibido:", error);
       }
     };
-  
+
     socket.on("receive_message", ReceiveMessage);
     socket.on("receive_file", ReceiveFile);
+
   
     return () => {
       socket.off("receive_message", ReceiveMessage);
       socket.off("receive_file", ReceiveFile);
     };
-  }, [rsaKeys?.privateKey, username]);
+  }, [rsaKeys, username]);
   
   return (
     <div className='main'>

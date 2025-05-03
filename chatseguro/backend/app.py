@@ -33,7 +33,7 @@ def register(data):
     print(f"[INFO] Public key registered for {username}: {pubkey}")  # Imprime cuando se registre una clave pública
 
 # Ver todas las claves públicas registradas
-print(f"[INFO] All registered public keys: {user_keys}")
+print(f"[INFO] Todas las llaves publicas: {user_keys}")
 
 # Evento para recibir un mensaje y reenviarlo
 @socketio.on("send_message")
@@ -49,7 +49,7 @@ def send_message(data):
     file_type = data.get("file_type", None)
     
     if not ciphertext:
-        print("Error: Texto cifrado vacío o null.")
+        print("Error: Texto cifrado vacío")
         return
 
     # Guardar el mensaje en la base de datos
@@ -82,7 +82,7 @@ def send_file(data):
     nonce = data.get("nonce")
 
     if not file_data:
-        print("Error: fileData está vacío o null.")
+        print("Error: fileData está vacío")
         return
 
     conn = get_db_connection()
