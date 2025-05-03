@@ -49,7 +49,6 @@ function Main() {
     ChargingPK();
   }, [username]);
 
-
   useEffect(() => {
     const loadHistory = async () => {
       if (!username || !receiver || !rsaKeys?.privateKey) return;
@@ -134,7 +133,6 @@ function Main() {
     loadHistory();
   }, [username, receiver, rsaKeys?.privateKey]);
   
-
   // Escuchar mensajes y archivos en tiempo real
   useEffect(() => {
     if (!rsaKeys?.privateKey || !username) return;
@@ -152,15 +150,8 @@ function Main() {
         );
   
         console.log("Nuevo mensaje recibido:", newText); // Verifica el contenido del mensaje
-  
-        setMessages(prev => {
-          console.log("Mensajes previos:", prev); // Muestra los mensajes previos
-          return [...prev, {
-            from: sender === username ? "Tú" : sender,
-            text: newText,
-            time: new Date().toLocaleTimeString(),
-          }];
-        });
+        // setMessages(prev => [...prev, { from: sender, text: messageText, time: new Date().toLocaleTimeString() }]);
+        setMessages(prev => [...prev, { from: sender === username ? "Tú" : sender, text: newText, time: new Date().toLocaleTimeString()}]);
       } catch (error) {
         console.error("Error al descifrar mensaje recibido:", error);
       }
@@ -171,28 +162,12 @@ function Main() {
       try {
         const isSender = data.sender === username;
         const encrypted_key = base64ToBuffer(isSender ? encrypted_key_sender : encrypted_key_receiver);
-        const decryptedFileBuffer = await decryptFileWithAES(
-          base64ToBuffer(fileData),
-          encrypted_key,
-          nonce,
-          rsaKeys.privateKey
-        );
+        const decryptedFileBuffer = await decryptFileWithAES(base64ToBuffer(fileData), encrypted_key, nonce, rsaKeys.privateKey);
         const fileBlob = new Blob([decryptedFileBuffer], { type: fileType });
         const fileURL = URL.createObjectURL(fileBlob);
   
-        console.log("Nuevo archivo recibido:", fileURL); // Verifica el archivo recibido
-  
-        setMessages(prev => [
-          ...prev,
-          {
-            type: "file",
-            fileURL,
-            fileName: fileName,
-            fileType: fileType,
-            from: data.sender === username ? "Tú" : data.sender,
-            time: new Date().toLocaleTimeString(),
-          },
-        ]);
+        console.log("Nuevo archivo recibido:", fileURL); // Verificar el archivo recibido
+        setMessages(prev => [...prev, { type: "file", fileURL, fileName: fileName, fileType: fileType, from: data.sender === username ? "Tú" : data.sender, time: new Date().toLocaleTimeString() }]);
       } catch (error) {
         console.error("Error al descifrar archivo recibido:", error);
       }

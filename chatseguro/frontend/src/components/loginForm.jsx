@@ -1,7 +1,7 @@
 // components/Login.jsx
 import React, { use } from 'react';
 import { toast } from 'react-toastify';
-import { generateRSAKeys, exportPublicKey, bufferToBase64 } from '../assets/crypto';
+import { generateRSAKeys, exportPublicKey, exportPrivateKey } from '../assets/crypto';
 
 const Login = ({ username, setUsername, setRsaKeys, socket, isLogin}) => {
   
@@ -9,23 +9,19 @@ const Login = ({ username, setUsername, setRsaKeys, socket, isLogin}) => {
     const keys = await generateRSAKeys();
     console.log('Esto tiene keys cuando se hace el login: ', keys);
     
-    const pubKey = await exportPublicKey(keys.publicKey);
-    console.log('Esta es la llave publica: ', pubKey);
-    
-    socket.emit("register_public_key", { username, public_key: pubKey });
-    socket.emit("join", { username });
-    setRsaKeys(keys);
-
     //Almacenar llave publica
-    const publicKey = await crypto.subtle.exportKey("spki", keys.publicKey);
+    const publicKey = await exportPublicKey(keys.publicKey);
     console.log('Esta es la llave pública: ', publicKey);
-    localStorage.setItem(`prublicKey_${username}`, bufferToBase64(publicKey));
+    // localStorage.setItem(`publicKey_${username}`, publicKey);
+    socket.emit("register_public_key", { username, public_key: publicKey });
 
     // Almacenar llave privada
-    const privKey = await crypto.subtle.exportKey("pkcs8", keys.privateKey);
-    console.log('Esta es la llave publica: ', privKey);
-    
-    localStorage.setItem(`privateKey_${username}`, bufferToBase64(privKey));
+    const privKey = await exportPrivateKey(keys.privateKey);
+    console.log('Esta es la llave privada: ', privKey);
+    localStorage.setItem(`privateKey_${username}`, privKey);
+
+    socket.emit("join", { username });
+    setRsaKeys(keys);
 
     toast.success(`¡Bienvenido, ${username}! Inicio de sesión exitoso.`);
   };

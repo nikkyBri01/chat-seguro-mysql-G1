@@ -22,17 +22,17 @@ export function base64ToBuffer(b64) {
 }
 
 export async function generateRSAKeys() {
-  return await crypto.subtle.generateKey({
-    name: "RSA-OAEP",
-    modulusLength: 2048,
-    publicExponent: new Uint8Array([1, 0, 1]),
-    hash: "SHA-256"
-  }, true, ["encrypt", "decrypt"]);
+  return await crypto.subtle.generateKey({ name: "RSA-OAEP", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["encrypt", "decrypt"]);
 }
 
 export async function exportPublicKey(key) {
   const spki = await crypto.subtle.exportKey("spki", key);
   return bufferToBase64(spki);
+}
+
+export async function exportPrivateKey(key) {
+  const pkcs8 = await crypto.subtle.exportKey("pkcs8", key);
+  return bufferToBase64(pkcs8);
 }
 
 export async function encryptAESKey(aesKeyRaw, receiverPublicKeyB64) {
@@ -48,11 +48,7 @@ export async function generateAESKey() {
 export async function encryptMessageWithAES(key, message) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encodedMessage = new TextEncoder().encode(message);
-  const encryptedBuffer = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
-    key,
-    encodedMessage
-  );
+  const encryptedBuffer = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encodedMessage);
   const ciphertext = new Uint8Array(encryptedBuffer);
   return { ciphertext, iv };
 }
@@ -70,11 +66,7 @@ export async function decryptMessageWithAES(ciphertext, encryptedKeyBuf, nonceBu
     console.log("Cargando nonce (IV):", nonceBuf);
     console.log("Cargando mensaje cifrado:", ciphertext);
 
-    const aesKeyRaw = await crypto.subtle.decrypt(
-      { name: "RSA-OAEP" },
-      privateKey,
-      encryptedKeyBuf
-    );
+    const aesKeyRaw = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, privateKey, encryptedKeyBuf);
     const aesKey = await crypto.subtle.importKey("raw", aesKeyRaw, { name: "AES-GCM" }, false, ["decrypt"]);
     const iv = nonceBuf;
     const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, aesKey, ciphertext);
@@ -89,30 +81,16 @@ export async function decryptMessageWithAES(ciphertext, encryptedKeyBuf, nonceBu
 export async function decryptFileWithAES(ciphertext, encryptedKey, nonce, privateKey) {
   try {
     // Desencriptar la clave AES usando la clave privada RSA
-    const aesKeyRaw = await crypto.subtle.decrypt(
-      { name: "RSA-OAEP" },
-      privateKey,
-      encryptedKey
-    );
+    const aesKeyRaw = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, privateKey, encryptedKey);
 
     // Importar la clave AES para descifrado
-    const aesKey = await crypto.subtle.importKey(
-      "raw",
-      aesKeyRaw,
-      { name: "AES-GCM" },
-      false,
-      ["decrypt"]
-    );
+    const aesKey = await crypto.subtle.importKey("raw", aesKeyRaw, { name: "AES-GCM" }, false, ["decrypt"]);
 
     // Convertir el nonce de base64 a ArrayBuffer
     const iv = base64ToBuffer(nonce);
 
     // Desencriptar el archivo con AES-GCM
-    const decrypted = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv },
-      aesKey,
-      ciphertext
-    );
+    const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, aesKey, ciphertext);
 
     return new Blob([new Uint8Array(decrypted)]); // Retorna el archivo desencriptado
   } catch (error) {

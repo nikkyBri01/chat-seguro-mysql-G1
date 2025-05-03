@@ -8,6 +8,7 @@ import {
   encryptMessageWithAES, 
   encryptFileWithAES, 
   bufferToBase64, 
+  base64ToBuffer
 } from '../assets/crypto';
 
 const MessageForm = ({ username, receiver, setMessages, socket }) => {
@@ -16,6 +17,10 @@ const MessageForm = ({ username, receiver, setMessages, socket }) => {
 
   const sendMessage = async () => {
     if (!receiver) return;
+
+    // const sender = localStorage.getItem('currentUser'); 
+    // const publicKeySender = localStorage.getItem(`publicKey_${sender}`);
+    // const publicKeyReceiver = localStorage.getItem(`publicKey_${receiver}`);
 
     const resReceiver = await fetch(`http://localhost:5000/get_public_key/${receiver}`);
     const { public_key: publicKeyReceiver } = await resReceiver.json();
@@ -38,7 +43,7 @@ const MessageForm = ({ username, receiver, setMessages, socket }) => {
         nonce: bufferToBase64(iv),
         ciphertext: bufferToBase64(ciphertext)
       });
-
+      
       setMessages(prev => [...prev, {
         from: "Tú",
         text: message,
@@ -74,8 +79,7 @@ const MessageForm = ({ username, receiver, setMessages, socket }) => {
         });
     
         // Actualizar el estado de los mensajes
-        setMessages(prev => [
-          ...prev,
+        setMessages(prev => [...prev,
           {
             from: "Tú",
             type: "file",

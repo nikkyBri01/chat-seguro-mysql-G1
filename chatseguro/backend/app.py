@@ -31,36 +31,6 @@ def register(data):
     pubkey = data["public_key"]
     user_keys[username] = pubkey
     print(f"[INFO] Public key registered for {username}: {pubkey}")  # Imprime cuando se registre una clave pública
-    
-# @app.route("/store_keys", methods=["POST"])
-# def store_keys():
-#     data = request.json
-#     username = data.get("username")
-#     public_key = data.get("public_key")
-#     private_key = data.get("private_key")
-
-#     if not username or not public_key or not private_key:
-#         return jsonify({"error": "Faltan datos"}), 400
-
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-
-#     try:
-#         cursor.execute("""
-#             INSERT INTO user_keys (username, public_key, private_key)
-#             VALUES (%s, %s, %s)
-#             ON DUPLICATE KEY UPDATE
-#                 public_key = VALUES(public_key),
-#                 private_key = VALUES(private_key)
-#         """, (username, public_key, private_key))
-
-#         conn.commit()
-#         return jsonify({"message": "Llaves guardadas correctamente."}), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-#     finally:
-#         cursor.close()
-#         conn.close()
 
 # Ver todas las claves públicas registradas
 print(f"[INFO] All registered public keys: {user_keys}")
@@ -169,41 +139,6 @@ def get_messages(user1, user2):
     conn.close()
 
     return jsonify(messages)
-
-
-# @app.route("/get_public_key/<username>", methods=["GET"])
-# def get_public_key(username):
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-
-#     cursor.execute("SELECT public_key FROM user_keys WHERE username = %s", (username,))
-#     row = cursor.fetchone()
-
-#     cursor.close()
-#     conn.close()
-
-#     if row:
-#         return jsonify({"public_key": row[0]})
-#     else:
-#         return jsonify({"error": "Clave pública no encontrada"}), 404
-
-
-# @app.route("/get_private_key/<username>", methods=["GET"])
-# def get_private_key(username):
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-
-#     cursor.execute("SELECT private_key FROM user_keys WHERE username = %s", (username,))
-#     row = cursor.fetchone()
-
-#     cursor.close()
-#     conn.close()
-
-#     if row:
-#         return jsonify({"private_key": row[0]})
-#     else:
-#         return jsonify({"error": "Clave privada no encontrada"}), 404
-
 
 if __name__ == '__main__':
     socketio.run(app, host="127.0.0.1", port=5000, debug=True)
